@@ -1,0 +1,62 @@
+base_dir: '/home/yancui/Haiku'
+
+wandb:
+  wandb_project: "Trimodal"
+  wandb_name: "full_trainset_new_25122"
+  wandb_entity: zhihuanglab-penn
+
+model:
+  name: 'Trimodal'
+  vocab: ["S100A4", "CD16", "Perforin", "Olig2", "FAP", "CollagenIV", "CD15", "TIM3", "CD207", "CD25", "PDL1", "Vimentin", "CD38", "CD62L", "RORgammaT", "Siglec8", "PD1", "pSTAT3", "CD49", "CD107a", "CD127", "CD14", "CD140b", "CD20", "CD152", "CD56", "TFAM", "ICOS", "CD138", "F4_80", "p16", "Gal3", "ERa", "CD206", "IFNg", "XCR1", "BCL2", "Keratin8_18", "EpCAM", "CD134", "CD79", "ECad", "CD44", "CD57", "Tbet", "CD183", "HLA-ABC", "INOS", "GranzymeB", "PNAD", "DAPI", "CD31", "CD197", "PanCK", "Clusterin", "HLA-E", "CD69", "Nestin", "CD66", "PGP9_5", "CD34", "GATA3", "CD40", "CD19", "VISTA", "FoxP3", "CD45", "Caveolin1", "CD45RA", "BCL6", "CD11b", "CD117", "CD3e", "CD163", "MPO", "IDO1", "CD47", "LYVE1", "CD39", "TCRgammadelta", "LAG3", "bCatenin", "CD137", "Keratin14", "PCNA", "Podoplanin", "HistoneH3p", "TIGIT", "CXCL13", "CD45RO", "ATM", "CD196", "Ki67", "CD90", "CD66b", "CX3CR1", "CD33", "SOX10", "TCF1", "CD123", "CD11c", "TOX", "CD4", "aSMA", "CD8", "CD209", "CD141", "Perlecan", "CD227", "Tryptase", "CD21", "CXCR5", "CD194", "TMEM16A", "CD1c", "CD68", "HLA-DR", "CD208", "Keratin19", "TP63", "CD5", "TCRb", "CD71", "PGP9.5"]
+  text_model: 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
+  codex_dim: 512
+  text_dim: 768
+  he_dim: 1024
+  projection_dim: 1024
+  shared_projection: false
+  freeze_he_encoder: true
+  freeze_codex_encoder: true
+  freeze_he_layers: true
+  tune_he_layers: [22, 23]
+  text_captions: ['biomarker_expression', 'cell_types', 'patient_information']
+  text_caption_sampling: 'all'
+  codex_encoder_weights_path: '/home/yancui/full_1124_trainset/full_1124_trainset_20251125_055426_20251125_055426/checkpoints/model_20.pt'
+
+dataset:
+  codex_path: '/data/enable_data/codex_patch_embeddings'
+  he_path: '/data/enable_data/new_he_patches'
+  text_path: '/data/enable_data/caption_background_text_v3'
+  max_length: 200
+  he_transform: true
+  codex_transform: true
+  shuffle: true
+  batch_size: 128
+
+loss:
+  name: 'pairwise_clip'
+  temperature: 0.07
+  constant_temperature: true
+  temp_lr: 1e-5
+  region_weight: 1.0
+  pos_weight: 2.0
+  delta: 0.2
+  alpha: 2.0
+  lam_a2j: 1.0
+  lam_cent: 1.0
+  lam_var: 0.05
+  lam_uni: 0.05
+  lam_a2a: 0.1
+  margin: 0.0
+
+training:
+  epochs: 50
+  warmup_batches: 1000
+  text_lr: 5e-6
+  codex_lr: 1e-5
+  he_lr: 1e-5
+  projection_lr: 1e-4
+  weight_decay: 0.01
+  gradient_clipping: false
+  clip_value: 1.0
+
+load_from_checkpoint: null

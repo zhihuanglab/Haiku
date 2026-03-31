@@ -1,0 +1,5 @@
+experiment:
+  name: VirTues
+
+dataset:
+  union_list: ["lung", "danenberg", "jacksonfischer", "hochschulz", "damond"]

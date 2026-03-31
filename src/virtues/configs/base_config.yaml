@@ -1,0 +1,111 @@
+base:
+  dir: '.'
+  additional_config: null
+
+experiment:
+  name: 'full_dataset_256x256_small_encoder_20'
+  dir: full_mae_train_expt
+  log_dir: logs
+  checkpoint_dir: checkpoints
+  wandb_run_id: null
+  disable_wandb: online # Set to 'disable' to disable wandb
+  #wandb_project: "VirTues"
+  #wandb_name: null
+  wandb_project: "Virtues_newd"
+  wandb_name: "Vt_new_whole_dataset"
+  wandb_entity: leibyj-penn
+
+training:
+  dropout: 0.0
+  resume: false
+  batch_size: 32
+  epochs: 20
+  lr_base: 0.0001
+  lr_base_end: 0.000001
+  weight_decay: 0.04
+  weight_decay_end: 0.4
+  warmup_epochs: 10
+  fp16: true
+  predict_all: true
+  alpha_fft: 0
+  grad_accumulation: 8
+  seed: 42
+  eval_during_training: false
+  patch_eval_freq: 100
+  crop_eval_freq: 200
+  final_eval: true
+  num_workers: 16
+  save_embeddings: true
+  clip_grad: 1.0
+  effective_batch_size: 128
+  lr: 0.0002
+  lr_end: 0.000002
+
+
+logistic:
+  balance_classes: balanced
+
+model:
+  dim: 512
+  feedforward_dim: 1024
+  encoder_pattern: hvhvhvhv # hvhvhvhvhvhvhvhv
+  num_encoder_heads: 8
+  num_decoder_heads: 8
+  num_decoder_hidden_layers: 0 
+  pos_emb: rope
+  backbone_size: base
+  decoder_pattern: ff
+  extra_patch_summary: true
+  use_only_patch_summary_for_decoder: true
+
+
+dataset:
+  name: lung
+  path: /path/to/dataset
+  metadata_path: metadata/
+  preload: false
+  union_list: null
+  filter_channels: null
+
+esm:
+  name: esm2_t30_150M_UR50D
+  encoding_dir: /path/to/esm_embeddings
+
+image_info:
+  normalization: self_std
+  rnd_crop_size: 256
+  patch_size: 16
+  use_rnd_crop_dir: true
+  use_fraction_training: 1.0
+  image_section_size: [256, 256] #[128, 128]
+  mask_ratio: [0.6, 1.0]
+  mask_strategy: uniform_independent
+  channel_fraction: [0.75, 1.0]
+  num_global_crops: 1
+  stride: null
+
+downstream:
+  task_level: image
+  dir: downstream_expt
+  num_seeds: 42
+  epochs: 200
+  seed: 42
+
+
+distributed: true
+data_dir: /home/yancui/enable_data/individual_samples
+marker_embeddings_path: /home/yancui/enable_data/esm_embeddings
+
+normalization: "per_channel"  # Options: per_channel, none
+blur_transform: true # adds a gentle gaussian blur, kernel=3 sigma=1
+subset_channels: true # randomly subset 10-25% of channels
+empty_threshold: 0.98 # threshold for empty channels
+filter_empty_channels: true # filter channels that have no expression
+image_size: 256  # Fixed size of input images, samples are size 256... the sample will be random cropped to image_size
+
+# full list of markers, if training on data subset, only that subset will be used
+vocab: ["S100A4", "CD16", "Perforin", "Olig2", "FAP", "CollagenIV", "CD15", "TIM3", "CD207", "CD25", "PDL1", "Vimentin", "CD38", "CD62L", "RORgammaT", "Siglec8", "PD1", "pSTAT3", "CD49", "CD107a", "CD127", "CD14", "CD140b", "CD20", "CD152", "CD56", "TFAM", "ICOS", "CD138", "F4_80", "p16", "Gal3", "ERa", "CD206", "IFNg", "XCR1", "BCL2", "Keratin8_18", "EpCAM", "CD134", "CD79", "ECad", "CD44", "CD57", "Tbet", "CD183", "HLA-ABC", "INOS", "GranzymeB", "PNAD", "DAPI", "CD31", "CD197", "PanCK", "Clusterin", "HLA-E", "CD69", "Nestin", "CD66", "PGP9_5", "CD34", "GATA3", "CD40", "CD19", "VISTA", "FoxP3", "CD45", "Caveolin1", "CD45RA", "BCL6", "CD11b", "CD117", "CD3e", "CD163", "MPO", "IDO1", "CD47", "LYVE1", "CD39", "TCRgammadelta", "LAG3", "bCatenin", "CD137", "Keratin14", "PCNA", "Podoplanin", "HistoneH3p", "TIGIT", "CXCL13", "CD45RO", "ATM", "CD196", "Ki67", "CD90", "CD66b", "CX3CR1", "CD33", "SOX10", "TCF1", "CD123", "CD11c", "TOX", "CD4", "aSMA", "CD8", "CD209", "CD141", "Perlecan", "CD227", "Tryptase", "CD21", "CXCR5", "CD194", "TMEM16A", "CD1c", "CD68", "HLA-DR", "CD208", "Keratin19", "TP63", 'CD5', 'TCRb', 'CD71', 'PGP9.5']
+
+
+should_visualize: true
+vis_every_n_batches: 50  # counts as accumulated batches

@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+
+# Checkpoints (symlinked from sphere-vlm, too large for git)
+checkpoints/
+
+# Internal preprocessing artifacts
+preprocessing/overlap_samples_new.json
+preprocessing/missing_biomarker_regions.txt
+preprocessing/stage_example_resources.py
+preprocessing/logs/
+preprocessing/mask_failed_ids.log
+
+# Large resources (distributed separately)
+resources/example_data/
+resources/full_codex_samples.json
+resources/overlap_samples_final.json
+
+# Dataset (distributed via release/Zenodo, not git)
+dataset/
+
+# Outputs
+outputs/
+
+# Examples (old, kept for internal reference)
+examples/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Weights & Biases
+wandb/
+
+# Large files
+figures/Asset 36Figure1.pdf
+src/virtues/.github/supplement.pdf
