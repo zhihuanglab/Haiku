@@ -47,11 +47,11 @@ Key dependencies: `transformers`, `timm`, `omegaconf`, `h5py`, `tifffile`, `scik
 
 ### 1. Patch Visualization
 
-[`example_retrieval/01_patching_process.ipynb`](example_retrieval/01_patching_process.ipynb) -- Visualize preprocessed CODEX + H&E patches with multi-channel biomarker overlays and whole-region mosaics.
+[`example_retrieval/patch_visualization.ipynb`](example_retrieval/patch_visualization.ipynb) -- Visualize preprocessed CODEX + H&E patches with multi-channel biomarker overlays and whole-region mosaics.
 
 ### 2. Cross-Modal Retrieval
 
-[`example_retrieval/02_text_and_embedding.ipynb`](example_retrieval/02_text_and_embedding.ipynb) -- Load a pretrained Haiku model, extract trimodal embeddings across 4 tissue regions (959 patches), and run Text-to-CODEX and H&E-to-CODEX retrieval with ground-truth comparison.
+[`example_retrieval/case_example.ipynb`](example_retrieval/case_example.ipynb) -- Load a pretrained Haiku model, extract trimodal embeddings across 4 tissue regions (959 patches), and run Text-to-CODEX and H&E-to-CODEX retrieval with ground-truth comparison.
 
 ### 3. Downstream Analysis
 

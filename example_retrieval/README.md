@@ -1,19 +1,19 @@
-# Example: Cross-Modal Retrieval
+# Example: Patch Visualization + Cross-Modal Retrieval
 
-Demonstrates Haiku's cross-modal retrieval capabilities using preprocessed demo data from `dataset/`.
+Demonstrates Haiku's data and cross-modal retrieval capabilities using preprocessed demo data from `dataset/`.
 
 ## Notebooks
 
-### 01 — Patch Visualization
+### Patch Visualization
 
-[`01_patching_process.ipynb`](01_patching_process.ipynb) visualizes preprocessed CODEX + H&E patches:
+[`patch_visualization.ipynb`](patch_visualization.ipynb) visualizes preprocessed CODEX + H&E patches:
 - Multi-channel biomarker views (DAPI, CD3e, CD8, PanCK, Ki67, CD20, etc.)
 - RGB composite overlays (R=PanCK, G=CD3e, B=DAPI)
-- Whole-region mosaics reconstructed from all 116 patches
+- Whole-region mosaics reconstructed from 262 patches
 
-### 02 — Embedding Inference + Retrieval
+### Case Example: Embedding Inference + Retrieval
 
-[`02_text_and_embedding.ipynb`](02_text_and_embedding.ipynb) runs the full Haiku pipeline:
+[`case_example.ipynb`](case_example.ipynb) runs the full Haiku pipeline:
 1. Loads the pretrained Haiku model (mIF + H&E + Text encoders)
 2. Extracts trimodal embeddings for 959 patches across 4 tissue regions
 3. Computes Text-to-CODEX and H&E-to-CODEX retrieval with ground-truth comparison
