@@ -101,7 +101,7 @@ class CODEXEncoder(nn.Module):
         self,
         codex_dim=512,
         marker_embedding=None,
-        pretrained_weights_path="/project/zhihuanglab/yancui/full_mae_train_expt/full_dataset_0521_20250521_162114/checkpoints/model_8.pt",
+        pretrained_weights_path=None,
     ):
         super().__init__()
 
@@ -116,21 +116,21 @@ class CODEXEncoder(nn.Module):
             pos_emb="rope",
         )
 
-        model_path = pretrained_weights_path
-        state_dict, _, _ = torch.load(model_path, map_location="cpu", weights_only=False)
+        if pretrained_weights_path is not None:
+            state_dict, _, _ = torch.load(pretrained_weights_path, map_location="cpu", weights_only=False)
 
-        encoder_state_dict = {}
-        for k, v in state_dict.items():
-            if k.startswith("encoder.encoder."):
-                encoder_state_dict[k.replace("encoder.", "", 1)] = v
-            elif k.startswith("encoder.protein_emb."):
-                encoder_state_dict[k.replace("encoder.", "", 1)] = v
-            elif k.startswith("encoder.patch_encoder.") or k.startswith("encoder.protein_encoder."):
-                encoder_state_dict[k.replace("encoder.", "", 1)] = v
-            elif k in ["encoder.patch_summary_token", "encoder.masked_token"]:
-                encoder_state_dict[k.replace("encoder.", "", 1)] = v
+            encoder_state_dict = {}
+            for k, v in state_dict.items():
+                if k.startswith("encoder.encoder."):
+                    encoder_state_dict[k.replace("encoder.", "", 1)] = v
+                elif k.startswith("encoder.protein_emb."):
+                    encoder_state_dict[k.replace("encoder.", "", 1)] = v
+                elif k.startswith("encoder.patch_encoder.") or k.startswith("encoder.protein_encoder."):
+                    encoder_state_dict[k.replace("encoder.", "", 1)] = v
+                elif k in ["encoder.patch_summary_token", "encoder.masked_token"]:
+                    encoder_state_dict[k.replace("encoder.", "", 1)] = v
 
-        self.encoder.load_state_dict(encoder_state_dict, strict=False)
+            self.encoder.load_state_dict(encoder_state_dict, strict=False)
 
     def forward(self, img, channels, mask=None):
         """
