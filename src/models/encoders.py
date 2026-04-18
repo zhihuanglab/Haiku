@@ -20,7 +20,7 @@ def mean_pooling(model_output, attention_mask):
 class TextEncoder(nn.Module):
     def __init__(
         self,
-        hf_model="nomic-ai/nomic-embed-text-v1",
+        hf_model="microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext",
         freeze_bert_layers=False,
         tune_bert_layers=None,
         skip_pretrained=False,
