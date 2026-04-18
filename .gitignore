@@ -47,3 +47,7 @@ wandb/
 # Large files
 figures/Asset 36Figure1.pdf
 src/virtues/.github/supplement.pdf
+
+# Local-only HF upload infrastructure (not public)
+scripts/upload_to_hf.py
+hf_bundle/

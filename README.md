@@ -93,10 +93,6 @@ model.eval()
 
 Pre-executed notebooks with all outputs are provided as `*_executed.ipynb` for reference.
 
-### Uploading your own checkpoint
-
-Use [`scripts/upload_to_hf.py`](scripts/upload_to_hf.py) to bundle a trained checkpoint with its tokenizer + marker assets and push to a HuggingFace repo of your choice.
-
 ---
 
 ## Directory Structure
@@ -122,8 +118,6 @@ Haiku/
 │   ├── text_gen_mp.py                # Text description generation
 │   └── enhance_des.py                # Text enhancement
 ├── dataset/                          # Optional local copy of demo data; HF-hosted version is canonical
-├── scripts/
-│   └── upload_to_hf.py               # Bundle checkpoint + tokenizer + assets and push to HF
 ├── example_retrieval/                # Retrieval example notebooks (auto-download from HF)
 └── downstream/                       # Downstream analysis notebooks
 ```
