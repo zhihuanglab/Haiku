@@ -164,10 +164,22 @@ We gratefully acknowledge the following open-source projects that Haiku builds u
 
 ## Citation
 
+If you use Haiku, please also cite the upstream models it builds on.
+
 ```bibtex
 @article{haiku2026,
   title={Linking Spatial Biology and Clinical Histology via Haiku},
   author={...},
   year={2026}
+}
+
+@article{gu2021biomedbert,
+  author  = {Gu, Yu and Tinn, Robert and Cheng, Hao and Lucas, Michael and Usuyama, Naoto and Liu, Xiaodong and Naumann, Tristan and Gao, Jianfeng and Poon, Hoifung},
+  title   = {Domain-Specific Language Model Pretraining for Biomedical Natural Language Processing},
+  journal = {ACM Transactions on Computing for Healthcare (HEALTH)},
+  year    = {2021},
+  note    = {Previously known as PubMedBERT. Model used: \texttt{microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext}.},
+  eprint  = {2007.15779},
+  archivePrefix = {arXiv},
 }
 ```
