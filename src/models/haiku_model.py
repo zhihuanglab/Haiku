@@ -1,7 +1,12 @@
+import json
+import os
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 
 from . import encoders
+from .embedding_module import MarkerEmbedding
 
 
 class Haiku(nn.Module):
@@ -28,6 +33,8 @@ class Haiku(nn.Module):
         freeze_he_layers=False,
         tune_he_layers=None,
         pretrained_weights_path="/project/zhihuanglab/yancui/full_mae_train_expt/full_dataset_0521_20250521_162114/checkpoints/model_8.pt",
+        skip_pretrained=False,
+        bert_config=None,
     ):
         """
         Args:
@@ -48,17 +55,25 @@ class Haiku(nn.Module):
         """
         super().__init__()
 
-        self.text_encoder = encoders.TextEncoder(hf_model, freeze_bert_layers, tune_bert_layers)
+        self.text_encoder = encoders.TextEncoder(
+            hf_model,
+            freeze_bert_layers,
+            tune_bert_layers,
+            skip_pretrained=skip_pretrained,
+            bert_config=bert_config,
+        )
 
         self.codex_encoder = encoders.CODEXEncoder(
             codex_dim=codex_dim,
             marker_embedding=marker_embedding,
-            pretrained_weights_path=pretrained_weights_path,
+            pretrained_weights_path=None if skip_pretrained else pretrained_weights_path,
         )
         for param in self.codex_encoder.parameters():
             param.requires_grad = not freeze_codex_encoder
 
-        self.he_encoder = encoders.MuskEncoder(freeze_he_layers, tune_he_layers)
+        self.he_encoder = encoders.MuskEncoder(
+            freeze_he_layers, tune_he_layers, skip_pretrained=skip_pretrained
+        )
 
         if shared_projection:
             if codex_dim == text_dim == he_dim:
@@ -151,3 +166,105 @@ class Haiku(nn.Module):
         text_features = self.text_projection(text_features)
 
         return {"codex": codex_features, "text": text_features, "HandE": he_features}
+
+    @classmethod
+    def from_pretrained(cls, repo_id_or_path, device="cpu", token=None, cache_dir=None):
+        """Load a Haiku model from a local directory or a Hugging Face Hub repo.
+
+        The repo is expected to contain:
+            - config.json
+            - haiku_state_dict.pt
+            - tokenizer/  (BiomedBERT tokenizer + config.json)
+            - esm_embeddings/*.pt  (optional; state_dict already holds them)
+            - vocab.pkl  (optional, for downstream use)
+
+        Returns:
+            (model, tokenizer, marker_embedding)
+        """
+        from transformers import BertTokenizer
+
+        local = Path(repo_id_or_path)
+        if not local.exists():
+            from huggingface_hub import snapshot_download
+
+            local = Path(
+                snapshot_download(
+                    repo_id=str(repo_id_or_path),
+                    token=token,
+                    cache_dir=cache_dir,
+                )
+            )
+
+        with open(local / "config.json") as f:
+            cfg = json.load(f)
+
+        tokenizer_dir = local / "tokenizer"
+        tokenizer = BertTokenizer.from_pretrained(str(tokenizer_dir))
+
+        esm_marker_names = cfg["esm_marker_names"]
+        known_markers = cfg["known_markers"]
+        embedding_dim = cfg["embedding_dim"]
+        marker_model_dim = cfg["marker_model_dim"]
+
+        esm_placeholder = {name: torch.zeros(embedding_dim) for name in esm_marker_names}
+
+        esm_dir = local / "esm_embeddings"
+        if esm_dir.is_dir():
+            for pt_file in esm_dir.glob("*.pt"):
+                try:
+                    esm_placeholder[pt_file.stem] = torch.load(
+                        str(pt_file), map_location="cpu", weights_only=False
+                    )
+                except Exception:
+                    pass
+
+        marker_embedding = MarkerEmbedding(
+            esm_placeholder,
+            known_markers=known_markers,
+            embedding_dim=embedding_dim,
+            model_dim=marker_model_dim,
+        )
+
+        model = cls(
+            hf_model=cfg["hf_model"],
+            codex_dim=cfg["codex_dim"],
+            text_dim=cfg["text_dim"],
+            he_dim=cfg["he_dim"],
+            projection_dim=cfg["projection_dim"],
+            shared_projection=cfg["shared_projection"],
+            marker_embedding=marker_embedding,
+            freeze_bert_layers=cfg.get("freeze_bert_layers", True),
+            tune_bert_layers=cfg.get("tune_bert_layers", [10, 11]),
+            freeze_he_encoder=cfg.get("freeze_he_encoder", True),
+            freeze_codex_encoder=cfg.get("freeze_codex_encoder", True),
+            pretrained_weights_path=None,
+            skip_pretrained=True,
+            bert_config=str(tokenizer_dir),
+        )
+
+        state_dict = torch.load(
+            str(local / "haiku_state_dict.pt"), map_location="cpu", weights_only=False
+        )
+        if isinstance(state_dict, dict) and "model_state_dict" in state_dict:
+            state_dict = state_dict["model_state_dict"]
+        missing, unexpected = model.load_state_dict(state_dict, strict=False)
+        if len(missing) > 0:
+            print(f"[Haiku.from_pretrained] missing keys: {len(missing)} (showing first 5): {missing[:5]}")
+        if len(unexpected) > 0:
+            print(f"[Haiku.from_pretrained] unexpected keys: {len(unexpected)} (showing first 5): {unexpected[:5]}")
+
+        model.to(device)
+        return model, tokenizer, marker_embedding
+
+    def save_pretrained(self, save_dir, config):
+        """Save model weights + config for later from_pretrained loading.
+
+        The caller is responsible for also copying the tokenizer directory
+        and optional extras (esm_embeddings/, vocab.pkl) into save_dir.
+        """
+        save_dir = Path(save_dir)
+        save_dir.mkdir(parents=True, exist_ok=True)
+
+        torch.save(self.state_dict(), save_dir / "haiku_state_dict.pt")
+        with open(save_dir / "config.json", "w") as f:
+            json.dump(config, f, indent=2)

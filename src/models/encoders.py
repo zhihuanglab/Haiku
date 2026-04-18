@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import CLIPModel, BertModel
+from transformers import CLIPModel, BertModel, BertConfig
 
 from virtues.models.virtues.mae import VirTuesMAE, VirTuesEncoder
 
@@ -23,6 +23,8 @@ class TextEncoder(nn.Module):
         hf_model="nomic-ai/nomic-embed-text-v1",
         freeze_bert_layers=False,
         tune_bert_layers=None,
+        skip_pretrained=False,
+        bert_config=None,
     ):
         """
         Args:
@@ -30,9 +32,23 @@ class TextEncoder(nn.Module):
             freeze_bert_layers: If True and tune_bert_layers is set, freezes all
                 layers except the specified ones.
             tune_bert_layers: List of BERT layer indices to keep trainable.
+            skip_pretrained: If True, build the BERT architecture from config
+                without downloading pretrained weights (weights are expected to
+                come from a subsequent state_dict load).
+            bert_config: Optional BertConfig or path to a local config.json;
+                used only when skip_pretrained=True.
         """
         super().__init__()
-        self.text_encoder = BertModel.from_pretrained(hf_model)
+        if skip_pretrained:
+            if bert_config is None:
+                cfg = BertConfig.from_pretrained(hf_model)
+            elif isinstance(bert_config, BertConfig):
+                cfg = bert_config
+            else:
+                cfg = BertConfig.from_pretrained(str(bert_config))
+            self.text_encoder = BertModel(cfg)
+        else:
+            self.text_encoder = BertModel.from_pretrained(hf_model)
 
         if freeze_bert_layers and tune_bert_layers is not None:
             self._freeze_bert_layers(tune_bert_layers)
@@ -67,10 +83,11 @@ class PLIPEncoder(nn.Module):
 
 
 class MuskEncoder(nn.Module):
-    def __init__(self, freeze_bert_layers=False, tune_bert_layers=None):
+    def __init__(self, freeze_bert_layers=False, tune_bert_layers=None, skip_pretrained=False):
         super().__init__()
         model = create_model("musk_large_patch16_384")
-        utils.load_model_and_may_interpolate("hf_hub:xiangjx/musk", model, "model|module", "")
+        if not skip_pretrained:
+            utils.load_model_and_may_interpolate("hf_hub:xiangjx/musk", model, "model|module", "")
         self.encoder = model
 
         if freeze_bert_layers and tune_bert_layers is not None:

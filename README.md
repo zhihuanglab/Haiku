@@ -43,7 +43,37 @@ conda activate haiku
 - PyTorch 2.6+
 - CUDA 12.x (GPU recommended)
 
-Key dependencies: `transformers`, `timm`, `omegaconf`, `h5py`, `tifffile`, `scikit-image`
+Key dependencies: `transformers`, `timm`, `omegaconf`, `h5py`, `tifffile`, `scikit-image`, `huggingface_hub`
+
+---
+
+## Pretrained Weights & Demo Data on HuggingFace
+
+Haiku ships as two gated-manual HuggingFace repos so you do **not** need to download MUSK or BiomedBERT separately or manage local demo data:
+
+| Repo | Type | Size | Contents |
+|---|---|---|---|
+| [`zhihuanglab/Haiku`](https://huggingface.co/zhihuanglab/Haiku) | model | 3.2 GB | `haiku_state_dict.pt`, BiomedBERT tokenizer + config, `config.json`, ESM embeddings, vocab |
+| [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) | dataset | 3.5 GB | `codex_patches/`, `he_patches/`, `text/`, `example_slices/`, `demo_samples.json` |
+
+Both repos are **gated (manual)** — request access on the repo page, then authenticate once:
+
+```bash
+hf auth login                  # or: export HF_TOKEN=hf_...
+```
+
+First run of any example notebook will download and cache the assets under `~/.cache/huggingface/`; subsequent runs are instant.
+
+**One-liner model load** (replaces manual MUSK + BiomedBERT + checkpoint loading):
+
+```python
+from models import Haiku
+
+model, tokenizer, marker_embedding = Haiku.from_pretrained(
+    "zhihuanglab/Haiku", device="cuda",
+)
+model.eval()
+```
 
 ---
 
@@ -51,17 +81,21 @@ Key dependencies: `transformers`, `timm`, `omegaconf`, `h5py`, `tifffile`, `scik
 
 ### 1. Patch Visualization
 
-[`example_retrieval/patch_visualization.ipynb`](example_retrieval/patch_visualization.ipynb) -- Visualize preprocessed CODEX + H&E patches with multi-channel biomarker overlays and whole-region mosaics.
+[`example_retrieval/patch_visualization.ipynb`](example_retrieval/patch_visualization.ipynb) -- Visualize preprocessed CODEX + H&E patches with multi-channel biomarker overlays and whole-region mosaics. Data auto-downloads from `zhihuanglab/Haiku-demo-data`.
 
 ### 2. Cross-Modal Retrieval
 
-[`example_retrieval/case_example.ipynb`](example_retrieval/case_example.ipynb) -- Load a pretrained Haiku model, extract trimodal embeddings across 4 tissue regions (959 patches), and run Text-to-CODEX and H&E-to-CODEX retrieval with ground-truth comparison.
+[`example_retrieval/case_example.ipynb`](example_retrieval/case_example.ipynb) -- Load the pretrained Haiku model via `Haiku.from_pretrained("zhihuanglab/Haiku")`, extract trimodal embeddings across 4 tissue regions (959 patches), and run Text-to-CODEX and H&E-to-CODEX retrieval with ground-truth comparison. A companion notebook [`case_example_hf_full.ipynb`](example_retrieval/case_example_hf_full.ipynb) verifies the HF-loaded pipeline reproduces the expected retrieval metrics (Text→CODEX R@1=0.065/R@5=0.244, H&E→CODEX R@1=0.343/R@5=0.719).
 
 ### 3. Downstream Analysis
 
 [`downstream/`](downstream/) -- Biomarker inference (fusion PCC), linear probing, MIL classification/survival, and perturbation analysis.
 
 Pre-executed notebooks with all outputs are provided as `*_executed.ipynb` for reference.
+
+### Uploading your own checkpoint
+
+Use [`scripts/upload_to_hf.py`](scripts/upload_to_hf.py) to bundle a trained checkpoint with its tokenizer + marker assets and push to a HuggingFace repo of your choice.
 
 ---
 
@@ -87,14 +121,10 @@ Haiku/
 │   ├── he_patch_from_codex_ids.py    # H&E patch extraction
 │   ├── text_gen_mp.py                # Text description generation
 │   └── enhance_des.py                # Text enhancement
-├── dataset/                          # Demo data (5 regions, 1075 patches)
-│   ├── demo_samples.json
-│   ├── vocab.pkl
-│   ├── esm_embeddings/
-│   ├── codex_patches/{region_id}/
-│   ├── he_patches/{region_id}/
-│   └── text/{region_id}/
-├── example_retrieval/                # Retrieval example notebooks
+├── dataset/                          # Optional local copy of demo data; HF-hosted version is canonical
+├── scripts/
+│   └── upload_to_hf.py               # Bundle checkpoint + tokenizer + assets and push to HF
+├── example_retrieval/                # Retrieval example notebooks (auto-download from HF)
 └── downstream/                       # Downstream analysis notebooks
 ```
 
@@ -102,7 +132,7 @@ Haiku/
 
 ## Data
 
-The `dataset/` directory contains preprocessed demo data for **5 tissue regions** (1,075 patches total). For the full dataset, see our data release on [Zenodo](#) (link forthcoming).
+Demo data for **4 tissue regions** (959 registered CODEX + H&E + text patches) is hosted at [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) and downloaded on demand by the example notebooks. For the full pretraining dataset, see our data release on [Zenodo](#) (link forthcoming).
 
 Each patch consists of:
 | Modality | Format | Shape | Description |
