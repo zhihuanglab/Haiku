@@ -182,4 +182,22 @@ If you use Haiku, please also cite the upstream models it builds on.
   eprint  = {2007.15779},
   archivePrefix = {arXiv},
 }
+
+@article{xiang2025musk,
+  author  = {Xiang, Jinxi and Wang, Xiyue and Zhang, Xiaoming and Xi, Yinghua and Eweje, Feyisope and Chen, Yijiang and Li, Yuchen and Bergstrom, Colin and Gopaulchan, Matthew and Kim, Ted and Yu, Kun-Hsing and Willens, Sierra and Olguin, Francesca Maria and Nirschl, Jeffrey J. and Neal, Joel and Diehn, Maximilian and Yang, Sen and Li, Ruijiang},
+  title   = {A Vision-Language Foundation Model for Precision Oncology},
+  journal = {Nature},
+  year    = {2025},
+  note    = {MUSK. H\&E encoder used in Haiku: \texttt{hf\_hub:xiangjx/musk}.},
+}
+
+@article{wenckstern2025virtues,
+  author  = {Wenckstern, Johann and Jain, Eeshaan and Cheng, Yexiang and von Querfurth, Benedikt and Vasilev, Kiril and Pariset, Matteo and Cheng, Phil F. and Liakopoulos, Petros and Michielin, Olivier and Wicki, Andreas and Gut, Gabriele and Bunne, Charlotte},
+  title   = {AI-powered virtual tissues from spatial proteomics for clinical diagnostics and biomedical discovery},
+  journal = {arXiv preprint arXiv:2501.06039},
+  year    = {2025},
+  note    = {VirTues. Used as the mIF (CODEX) encoder backbone in Haiku.},
+  eprint  = {2501.06039},
+  archivePrefix = {arXiv},
+}
 ```
