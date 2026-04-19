@@ -1,4 +1,4 @@
-# Haiku: Linking Spatial Biology and Clinical Histology
+# 🎴 Haiku: Linking Spatial Biology and Clinical Histology
 
 **A tri-modal contrastive learning model that aligns multiplexed immunofluorescence (mIF), H&E histology, and clinical text within a shared embedding space.**
 
@@ -21,16 +21,16 @@ Integrating molecular, morphological, and clinical data is essential for transla
 > **(g)** Metadata-enhanced biomarker inference via fusion retrieval + PCC.
 > **(h)** Counterfactual prediction through in-silico metadata perturbation.
 
-## Highlights
+## ✨ Highlights
 
-- **Three-way cross-modal retrieval** across mIF, H&E, and clinical text
-- **Zero-shot biomarker inference** through fusion retrieval conditioned on metadata-only text descriptions that exclude explicit biomarker information
-- **Counterfactual prediction framework** that modifies clinical metadata while fixing tissue morphology, revealing niche-specific molecular remodeling programs associated with breast cancer stage progression and lung cancer survival outcome
-- **Improved downstream performance** over unimodal baselines on classification and clinical prediction tasks
+- 🔁 **Three-way cross-modal retrieval** across mIF, H&E, and clinical text
+- 🧪 **Zero-shot biomarker inference** through fusion retrieval conditioned on metadata-only text descriptions that exclude explicit biomarker information
+- 🧬 **Counterfactual prediction framework** that modifies clinical metadata while fixing tissue morphology, revealing niche-specific molecular remodeling programs associated with breast cancer stage progression and lung cancer survival outcome
+- 📈 **Improved downstream performance** over unimodal baselines on classification and clinical prediction tasks
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 ```bash
 conda env create -f environment.yml
@@ -47,7 +47,7 @@ Key dependencies: `transformers`, `timm`, `omegaconf`, `h5py`, `tifffile`, `scik
 
 ---
 
-## Pretrained Weights & Demo Data on HuggingFace
+## 🤗 Pretrained Weights & Demo Data on HuggingFace
 
 Haiku ships as two gated-manual HuggingFace repos so you do **not** need to download MUSK or BiomedBERT separately or manage local demo data:
 
@@ -77,17 +77,17 @@ model.eval()
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Patch Visualization
+### 🖼️ 1. Patch Visualization
 
 [`example_retrieval/patch_visualization.ipynb`](example_retrieval/patch_visualization.ipynb) -- Visualize preprocessed CODEX + H&E patches with multi-channel biomarker overlays and whole-region mosaics. Data auto-downloads from `zhihuanglab/Haiku-demo-data`.
 
-### 2. Cross-Modal Retrieval
+### 🔎 2. Cross-Modal Retrieval
 
 [`example_retrieval/case_example.ipynb`](example_retrieval/case_example.ipynb) -- Load the pretrained Haiku model via `Haiku.from_pretrained("zhihuanglab/Haiku")`, extract trimodal embeddings across 4 tissue regions (959 patches), and run Text-to-CODEX and H&E-to-CODEX retrieval with ground-truth comparison (Text→CODEX R@1=0.065/R@5=0.244, H&E→CODEX R@1=0.343/R@5=0.719).
 
-### 3. Downstream Analysis
+### 📊 3. Downstream Analysis
 
 [`downstream/`](downstream/) -- Biomarker inference (fusion PCC), linear probing, MIL classification/survival, and perturbation analysis.
 
@@ -95,7 +95,7 @@ Pre-executed notebooks with all outputs are provided as `*_executed.ipynb` for r
 
 ---
 
-## Directory Structure
+## 📁 Directory Structure
 
 ```
 Haiku/
@@ -124,7 +124,7 @@ Haiku/
 
 ---
 
-## Data
+## 📦 Data
 
 Demo data for **4 tissue regions** (959 registered CODEX + H&E + text patches) is hosted at [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) and downloaded on demand by the example notebooks. For the full pretraining dataset, see our data release on [Zenodo](#) (link forthcoming).
 
@@ -135,13 +135,13 @@ Each patch consists of:
 | H&E | `.npy` | (256, 256, 3) | Registered histology patch |
 | Text | `.txt` | -- | Clinical metadata + biomarker expression narrative |
 
-## Preprocessing
+## 🔬 Preprocessing
 
 To preprocess your own data from raw CODEX + H&E TIFFs, see the [preprocessing guide](preprocessing/README.md).
 
 ---
 
-## Model Architecture
+## 🧠 Model Architecture
 
 | Component | Backbone | Embedding Dim |
 |-----------|----------|:---:|
@@ -153,7 +153,7 @@ To preprocess your own data from raw CODEX + H&E TIFFs, see the [preprocessing g
 
 ---
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 We gratefully acknowledge the following open-source projects that Haiku builds upon:
 
@@ -162,7 +162,7 @@ We gratefully acknowledge the following open-source projects that Haiku builds u
 - **[BiomedBERT](https://huggingface.co/microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext)** -- Biomedical language model
 - **[ESM](https://github.com/facebookresearch/esm)** -- Protein language model for marker embeddings
 
-## Citation
+## 📑 Citation
 
 If you use Haiku, please also cite the upstream models it builds on.
 
