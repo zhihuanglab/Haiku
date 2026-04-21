@@ -126,7 +126,7 @@ Haiku/
 
 ## 📦 Data
 
-Demo data for **4 tissue regions** (959 registered CODEX + H&E + text patches) is hosted at [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) and downloaded on demand by the example notebooks. For the full pretraining dataset, see our data release on [Zenodo](#) (link forthcoming).
+Demo data for **4 tissue regions** (959 registered CODEX + H&E + text patches) is hosted at [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) and downloaded on demand by the example notebooks.
 
 Each patch consists of:
 | Modality | Format | Shape | Description |
