@@ -6,6 +6,9 @@
   <img src="figures/image (3).png" width="30%" alt="Haiku Logo">
 </p>
 
+## 🎬 Introducing Haiku
+[![Watch Demo](./figures/haiku_thumbnail.png)](./figures/haiku_ads_compressed.mp4)
+
 Integrating molecular, morphological, and clinical data is essential for translational biomedical research, yet systematic frameworks for jointly modeling these modalities remain limited. Haiku is pretrained on **26.7 million spatial proteomics patches** from **3,218 tissue sections**, enabling cross-modal retrieval, downstream clinical prediction, zero-shot biomarker inference, and counterfactual perturbation analysis.
 
 <p align="center">
