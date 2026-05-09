@@ -7,7 +7,15 @@
 </p>
 
 ## 🎬 Introducing Haiku
-<p align="center"> <a href="https://github.com/zhihuanglab/Haiku/blob/main/figures/haiku_ads_compressed.mp4"> <img src="https://raw.githubusercontent.com/zhihuanglab/Haiku/main/figures/haiku_thumbnail.jpg" alt="Haiku Demo Preview" width="800"> </a> </p>
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=STqirj1YRAQ">
+    <img 
+      src="https://raw.githubusercontent.com/zhihuanglab/Haiku/main/figures/haiku_thumbnail.jpg"
+      alt="Haiku Introduction"
+      width="800"
+    >
+  </a>
+</p>
 
 Integrating molecular, morphological, and clinical data is essential for translational biomedical research, yet systematic frameworks for jointly modeling these modalities remain limited. Haiku is pretrained on **26.7 million spatial proteomics patches** from **3,218 tissue sections**, enabling cross-modal retrieval, downstream clinical prediction, zero-shot biomarker inference, and counterfactual perturbation analysis.
 
