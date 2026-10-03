@@ -15,6 +15,10 @@ class Haiku(nn.Module):
     Encodes CODEX multiplexed imaging, H&E histology, and free-text
     descriptions into a shared embedding space via independent projection
     heads.
+
+    With ``use_text=False`` the model is the bi-modal Haiku(Bi) variant
+    (CODEX + H&E only): no text encoder / text projection is built and text
+    encoding raises an error.
     """
 
     def __init__(
@@ -35,6 +39,7 @@ class Haiku(nn.Module):
         pretrained_weights_path="/project/zhihuanglab/yancui/full_mae_train_expt/full_dataset_0521_20250521_162114/checkpoints/model_8.pt",
         skip_pretrained=False,
         bert_config=None,
+        use_text=True,
     ):
         """
         Args:
@@ -52,16 +57,22 @@ class Haiku(nn.Module):
             freeze_he_layers: If True, freezes specific H&E layers.
             tune_he_layers: Indices of H&E layers to fine-tune.
             pretrained_weights_path: Path to pretrained VirTues encoder weights.
+            use_text: If False, build the bi-modal (CODEX + H&E) Haiku(Bi)
+                variant without a text encoder / text projection.
         """
         super().__init__()
 
-        self.text_encoder = encoders.TextEncoder(
-            hf_model,
-            freeze_bert_layers,
-            tune_bert_layers,
-            skip_pretrained=skip_pretrained,
-            bert_config=bert_config,
-        )
+        self.use_text = use_text
+        if use_text:
+            self.text_encoder = encoders.TextEncoder(
+                hf_model,
+                freeze_bert_layers,
+                tune_bert_layers,
+                skip_pretrained=skip_pretrained,
+                bert_config=bert_config,
+            )
+        else:
+            self.text_encoder = None
 
         self.codex_encoder = encoders.CODEXEncoder(
             codex_dim=codex_dim,
@@ -105,12 +116,15 @@ class Haiku(nn.Module):
                 nn.Linear(projection_dim, projection_dim),
                 nn.BatchNorm1d(projection_dim),
             )
-            self.text_projection = nn.Sequential(
-                nn.Linear(text_dim, projection_dim),
-                nn.ReLU(),
-                nn.Linear(projection_dim, projection_dim),
-                nn.BatchNorm1d(projection_dim),
-            )
+            if use_text:
+                self.text_projection = nn.Sequential(
+                    nn.Linear(text_dim, projection_dim),
+                    nn.ReLU(),
+                    nn.Linear(projection_dim, projection_dim),
+                    nn.BatchNorm1d(projection_dim),
+                )
+            else:
+                self.text_projection = None
             self.he_projection = nn.Sequential(
                 nn.Linear(he_dim, projection_dim),
                 nn.ReLU(),
@@ -135,6 +149,11 @@ class Haiku(nn.Module):
 
         if not isinstance(modality, str) or modality not in ["he", "codex", "text"]:
             raise ValueError("Modality must be one of ['he', 'codex', 'text']")
+        if modality == "text" and self.text_encoder is None:
+            raise NotImplementedError(
+                "This is the bi-modal Haiku(Bi) model (CODEX + H&E only); it has no text "
+                "encoder. Use the tri-modal model (zhihuanglab/Haiku) for text queries."
+            )
 
         encoder = getattr(self, f"{modality}_encoder")
         projection = getattr(self, f"{modality}_projection")
@@ -159,10 +178,14 @@ class Haiku(nn.Module):
         else:
             codex_features = self.codex_encoder(data["codex"], data["channels"])
         he_features = self.he_encoder(data["HandE"])
-        text_features = self.text_encoder(data["text"], data["att_mask"])
 
         codex_features = self.codex_projection(codex_features)
         he_features = self.he_projection(he_features)
+
+        if self.text_encoder is None:  # bi-modal Haiku(Bi)
+            return {"codex": codex_features, "HandE": he_features}
+
+        text_features = self.text_encoder(data["text"], data["att_mask"])
         text_features = self.text_projection(text_features)
 
         return {"codex": codex_features, "text": text_features, "HandE": he_features}
@@ -174,12 +197,14 @@ class Haiku(nn.Module):
         The repo is expected to contain:
             - config.json
             - haiku_state_dict.pt
-            - tokenizer/  (BiomedBERT tokenizer + config.json)
+            - tokenizer/  (BiomedBERT tokenizer + config.json; not needed when
+              config.json has "use_text": false, i.e. the bi-modal Haiku(Bi))
             - esm_embeddings/*.pt  (optional; state_dict already holds them)
             - vocab.pkl  (optional, for downstream use)
 
         Returns:
-            (model, tokenizer, marker_embedding)
+            (model, tokenizer, marker_embedding); tokenizer is None for the
+            bi-modal Haiku(Bi) bundle.
         """
         from transformers import BertTokenizer
 
@@ -198,8 +223,9 @@ class Haiku(nn.Module):
         with open(local / "config.json") as f:
             cfg = json.load(f)
 
+        use_text = cfg.get("use_text", True)
         tokenizer_dir = local / "tokenizer"
-        tokenizer = BertTokenizer.from_pretrained(str(tokenizer_dir))
+        tokenizer = BertTokenizer.from_pretrained(str(tokenizer_dir)) if use_text else None
 
         esm_marker_names = cfg["esm_marker_names"]
         known_markers = cfg["known_markers"]
@@ -226,9 +252,9 @@ class Haiku(nn.Module):
         )
 
         model = cls(
-            hf_model=cfg["hf_model"],
+            hf_model=cfg.get("hf_model"),
             codex_dim=cfg["codex_dim"],
-            text_dim=cfg["text_dim"],
+            text_dim=cfg.get("text_dim", 768),
             he_dim=cfg["he_dim"],
             projection_dim=cfg["projection_dim"],
             shared_projection=cfg["shared_projection"],
@@ -239,7 +265,8 @@ class Haiku(nn.Module):
             freeze_codex_encoder=cfg.get("freeze_codex_encoder", True),
             pretrained_weights_path=None,
             skip_pretrained=True,
-            bert_config=str(tokenizer_dir),
+            bert_config=str(tokenizer_dir) if use_text else None,
+            use_text=use_text,
         )
 
         state_dict = torch.load(

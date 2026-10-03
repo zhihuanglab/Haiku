@@ -1,0 +1,10 @@
+quantity,this run,manuscript
+patients,71,71
+testable channels,53,53
+q < 0.10 (up / down),18 (11 / 7),18 (11 / 7)
+q < 0.05,6,6
+PD-1 d_z,+0.60,+0.60
+PD-1 q,6.4e-04,6.4e-04
+grade n (G3 / G2),66 (38 / 28),66 (38 / 28)
+grade AUROC,0.815,0.82 (0.815 before rounding)
+grade P_perm,< 5e-04,< 5e-04

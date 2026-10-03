@@ -17,7 +17,7 @@
   </a>
 </p>
 
-Integrating molecular, morphological, and clinical data is essential for translational biomedical research, yet systematic frameworks for jointly modeling these modalities remain limited. Haiku is pretrained on **26.7 million spatial proteomics patches** from **3,218 tissue sections**, enabling cross-modal retrieval, downstream clinical prediction, zero-shot biomarker inference, and counterfactual perturbation analysis.
+Integrating molecular, morphological, and clinical data is essential for translational biomedical research, yet systematic frameworks for jointly modeling these modalities remain limited. Haiku is pretrained on **26.7 million spatial proteomics patches** from **3,218 tissue sections**, enabling cross-modal retrieval, downstream clinical prediction, zero-shot biomarker inference, and counterfactual analysis at both single-patient and cohort scale. An alternative bi-modal version, **Haiku(Bi)**, is released alongside for image-to-image (H&E ↔ mIF) use cases.
 
 <p align="center">
   <img src="figures/figure1.png" width="100%" alt="Haiku Overview">
@@ -30,13 +30,15 @@ Integrating molecular, morphological, and clinical data is essential for transla
 > **(e)** Slice-level MIL prediction for survival and treatment response.
 > **(f)** Fusion retrieval combining H&E and text embeddings.
 > **(g)** Metadata-enhanced biomarker inference via fusion retrieval + PCC.
-> **(h)** Counterfactual prediction through in-silico metadata perturbation.
+> **(h)** Counterfactual prediction through metadata editing (retrieval conditioned on a metadata shift).
 
 ## ✨ Highlights
 
 - 🔁 **Three-way cross-modal retrieval** across mIF, H&E, and clinical text
 - 🧪 **Zero-shot biomarker inference** through fusion retrieval conditioned on metadata-only text descriptions that exclude explicit biomarker information
 - 🧬 **Counterfactual prediction framework** that modifies clinical metadata while fixing tissue morphology, revealing niche-specific molecular remodeling programs associated with breast cancer stage progression and lung cancer survival outcome
+- 👥 **Cohort-scale counterfactual analysis** that applies the same metadata edit independently to every patient of a cohort, with patient-level statistics, complementing single-patient analyses
+- 🪶 **Haiku(Bi)**, an alternative bi-modal (H&E ↔ mIF) version of Haiku for image-to-image retrieval and H&E-only biomarker inference
 - 📈 **Improved downstream performance** over unimodal baselines on classification and clinical prediction tasks
 
 ---
@@ -60,14 +62,15 @@ Key dependencies: `transformers`, `timm`, `omegaconf`, `h5py`, `tifffile`, `scik
 
 ## 🤗 Pretrained Weights & Demo Data on HuggingFace
 
-Haiku ships as two gated-manual HuggingFace repos so you do **not** need to download MUSK or BiomedBERT separately or manage local demo data:
+Haiku ships as three gated-manual HuggingFace repos so you do **not** need to download MUSK or BiomedBERT separately or manage local demo data:
 
 | Repo | Type | Size | Contents |
 |---|---|---|---|
 | [`zhihuanglab/Haiku`](https://huggingface.co/zhihuanglab/Haiku) | model | 3.2 GB | `haiku_state_dict.pt`, BiomedBERT tokenizer + config, `config.json`, ESM embeddings, vocab |
+| [`zhihuanglab/Haiku-Bi`](https://huggingface.co/zhihuanglab/Haiku-Bi) | model | 2.8 GB | **Haiku(Bi)**: alternative bi-modal (H&E ↔ mIF) version, `haiku_state_dict.pt` (no text encoder), `config.json`, ESM embeddings, vocab |
 | [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) | dataset | 3.5 GB | `codex_patches/`, `he_patches/`, `text/`, `example_slices/`, `demo_samples.json` |
 
-Both repos are **gated (manual)** — request access on the repo page, then authenticate once:
+All repos are **gated (manual)** — request access on the repo page, then authenticate once:
 
 ```bash
 hf auth login                  # or: export HF_TOKEN=hf_...
@@ -86,6 +89,21 @@ model, tokenizer, marker_embedding = Haiku.from_pretrained(
 model.eval()
 ```
 
+### 🪶 Haiku(Bi): alternative bi-modal version
+
+**Haiku(Bi)** uses the same encoders, projection-head design, paired training data and training schedule as Haiku, but is trained with only the H&E ↔ mIF contrastive term. To our knowledge, it is among the first models to connect H&E histology and spatial proteomics through contrastive pretraining at this scale (26.7 million paired patches). It is the version of choice when exact H&E–mIF patch matching is the main objective; the tri-modal Haiku is recommended for tasks that use clinical context (text queries, metadata-conditioned biomarker inference and counterfactual analysis), which Haiku(Bi) does not support.
+
+```python
+from models import Haiku
+
+model, tokenizer, marker_embedding = Haiku.from_pretrained(
+    "zhihuanglab/Haiku-Bi", device="cuda",
+)   # tokenizer is None: Haiku(Bi) has no text encoder
+model.eval()
+he_emb = model.get_features_single_modality({"HandE": he}, modality="he")
+codex_emb = model.get_features_single_modality({"codex_embedding": codex}, modality="codex")
+```
+
 ---
 
 ## 🚀 Quick Start
@@ -100,7 +118,7 @@ model.eval()
 
 ### 📊 3. Downstream Analysis
 
-[`downstream/`](downstream/) -- Biomarker inference (fusion PCC), linear probing, MIL classification/survival, and perturbation analysis.
+[`downstream/`](downstream/) -- Biomarker inference (fusion PCC), linear probing, MIL classification/survival, single-patient counterfactual analysis (`11`, `12`), and the new cohort-scale counterfactual analysis of 71 lung cancer patients with patient-level statistics and tumor-grade prediction from the per-patient shift vectors ([`13_cohort_counterfactual_lung.ipynb`](downstream/13_cohort_counterfactual_lung.ipynb)).
 
 Pre-executed notebooks with all outputs are provided as `*_executed.ipynb` for reference.
 
@@ -115,7 +133,7 @@ Haiku/
 ├── src/
 │   ├── configs/config.yaml           # Model and training configuration
 │   ├── models/
-│   │   ├── haiku_model.py            # Haiku trimodal model
+│   │   ├── haiku_model.py            # Haiku trimodal model (and Haiku(Bi) via use_text=False)
 │   │   ├── encoders.py               # Text (BiomedBERT), mIF (VirTues), H&E (MUSK) encoders
 │   │   └── embedding_module.py       # Marker embedding (ESM + learnable)
 │   ├── data/dataset.py               # Dataset classes and collate functions
@@ -130,7 +148,9 @@ Haiku/
 │   └── enhance_des.py                # Text enhancement
 ├── dataset/                          # Optional local copy of demo data; HF-hosted version is canonical
 ├── example_retrieval/                # Retrieval example notebooks (auto-download from HF)
+├── scripts/build_hf_bundle_bi.py     # Builds the Haiku(Bi) HuggingFace bundle
 └── downstream/                       # Downstream analysis notebooks
+    └── cohort/                       # Cohort-scale counterfactual analysis module (notebook 13)
 ```
 
 ---
