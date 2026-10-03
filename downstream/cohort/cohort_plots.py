@@ -1,4 +1,4 @@
-"""Figures for the cohort counterfactual notebook (Fig. 6e-h, Supp. Fig. 9)."""
+"""Figures for the cohort counterfactual notebook (Fig. 6e-h, Supp. Fig. S8)."""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,7 +15,7 @@ def _stars(q):
 def plot_marker_shifts(T, n_patients, only_sig=False, q_col='q'):
     """Cohort mean shift with 95% patient-bootstrap CI (left) and paired d_z
     (right).  only_sig=True gives the Fig. 6e view (q < 0.10), False the
-    all-marker Supplementary Fig. 9 view."""
+    all-marker Supplementary Fig. S8 view."""
     T = T.copy()
     if only_sig:
         T = T[T[q_col] < 0.10]

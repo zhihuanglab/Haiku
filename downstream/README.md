@@ -53,7 +53,7 @@ plots are driven by the BH-adjusted q-values (thresholds `<0.001 / 0.01 / 0.05`)
 
 Repeats the notebook-12 Deceased → Alive survival edit independently for every
 lung cancer patient recorded as Deceased (n = 71; manuscript Fig. 6e–h,
-Supplementary Fig. 9, Methods "Population-scale per-patient counterfactual
+Supplementary Fig. S8, Methods "Population-scale per-patient counterfactual
 inference"). Each patient keeps their own record; the edit sets the status to
 Alive and multiplies their own survival duration by 2.4 (the 25 → 60 months
 ratio of the single-patient edit). Retrieval settings match notebook 12
