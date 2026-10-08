@@ -66,8 +66,8 @@ Haiku ships as three gated-manual HuggingFace repos so you do **not** need to do
 
 | Repo | Type | Size | Contents |
 |---|---|---|---|
-| [`zhihuanglab/Haiku`](https://huggingface.co/zhihuanglab/Haiku) | model | 3.2 GB | `haiku_state_dict.pt`, BiomedBERT tokenizer + config, `config.json`, ESM embeddings, vocab |
-| [`zhihuanglab/Haiku-Bi`](https://huggingface.co/zhihuanglab/Haiku-Bi) | model | 2.8 GB | **Haiku(Bi)**: alternative bi-modal (H&E ↔ mIF) version, `haiku_state_dict.pt` (no text encoder), `config.json`, ESM embeddings, vocab |
+| [`zhihuanglab/Haiku`](https://huggingface.co/zhihuanglab/Haiku) | model | 3.2 GB | `haiku_state_dict.pt`, BiomedBERT tokenizer + config, `config.json`, ESM C embeddings, vocab |
+| [`zhihuanglab/Haiku-Bi`](https://huggingface.co/zhihuanglab/Haiku-Bi) | model | 2.8 GB | **Haiku(Bi)**: alternative bi-modal (H&E ↔ mIF) version, `haiku_state_dict.pt` (no text encoder), `config.json`, ESM C embeddings, vocab |
 | [`zhihuanglab/Haiku-demo-data`](https://huggingface.co/datasets/zhihuanglab/Haiku-demo-data) | dataset | 3.5 GB | `codex_patches/`, `he_patches/`, `text/`, `example_slices/`, `demo_samples.json` |
 
 All repos are **gated (manual)** — request access on the repo page, then authenticate once:
@@ -135,7 +135,7 @@ Haiku/
 │   ├── models/
 │   │   ├── haiku_model.py            # Haiku trimodal model (and Haiku(Bi) via use_text=False)
 │   │   ├── encoders.py               # Text (BiomedBERT), mIF (VirTues), H&E (MUSK) encoders
-│   │   └── embedding_module.py       # Marker embedding (ESM + learnable)
+│   │   └── embedding_module.py       # Marker embedding (ESM C + learnable)
 │   ├── data/dataset.py               # Dataset classes and collate functions
 │   ├── utils/                        # Loss functions and transforms
 │   ├── haiku/                        # Notebook utility package
@@ -180,7 +180,7 @@ To preprocess your own data from raw CODEX + H&E TIFFs, see the [preprocessing g
 | H&E Encoder | MUSK (ViT-Large) | 1024 |
 | Text Encoder | BiomedBERT | 768 |
 | Projection Heads | Per-modality MLP | 1024 |
-| Marker Embedding | ESM + learnable | 1152 &rarr; 512 |
+| Marker Embedding | ESM C (600M) + learnable | 1152 &rarr; 512 |
 
 ---
 
@@ -191,7 +191,7 @@ We gratefully acknowledge the following open-source projects that Haiku builds u
 - **[MUSK](https://github.com/lilab-stanford/MUSK)** -- H&E vision encoder pretrained on large-scale pathology data
 - **[VirTues](https://github.com/Boehringer-Ingelheim/VirTues)** -- Vision Transformer MAE for multiplexed tissue imaging
 - **[BiomedBERT](https://huggingface.co/microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext)** -- Biomedical language model
-- **[ESM](https://github.com/facebookresearch/esm)** -- Protein language model for marker embeddings
+- **[ESM C](https://github.com/evolutionaryscale/esm)** -- Protein language model (ESM C 600M) for marker embeddings
 
 ## 📑 Citation
 
