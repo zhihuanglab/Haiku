@@ -189,7 +189,7 @@ To preprocess your own data from raw CODEX + H&E TIFFs, see the [preprocessing g
 We gratefully acknowledge the following open-source projects that Haiku builds upon:
 
 - **[MUSK](https://github.com/lilab-stanford/MUSK)** -- H&E vision encoder pretrained on large-scale pathology data
-- **[VirTues](https://github.com/Boehringer-Ingelheim/VirTues)** -- Vision Transformer MAE for multiplexed tissue imaging
+- **[VirTues](https://github.com/bunnelab/virtues)** -- Vision Transformer MAE for multiplexed tissue imaging
 - **[BiomedBERT](https://huggingface.co/microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext)** -- Biomedical language model
 - **[ESM C](https://github.com/evolutionaryscale/esm)** -- Protein language model (ESM C 600M) for marker embeddings
 
