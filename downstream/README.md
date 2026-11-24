@@ -11,8 +11,8 @@ Notebooks for evaluating Haiku embeddings on downstream tasks.
 | 05 | `05_retrieval.ipynb` | Cross-modal retrieval analysis (Codex/H&E/Text) |
 | 06 | `06_biomarker_inference.ipynb` | Fusion retrieval + per-biomarker Pearson correlation (PCC) |
 | 07 | `07_linear_probing.ipynb` | Linear probes on precomputed (frozen) embeddings |
-| 08 | `08_mil_classification.ipynb` | MIL patient-level classification, sweep-best HPs + early stopping on val |
-| 09 | `09_mil_survival.ipynb` | MIL survival prediction, sweep-best HPs + early stopping on val |
+| 08 | `08_mil_classification.ipynb` | MIL treatment-response classification (melanoma; CRC pooled over FOLFIRI/FOLFOX + bevacizumab), five encoders, nested CV with per-encoder HP selection |
+| 09 | `09_mil_survival.ipynb` | MIL-Cox CRC survival, five encoders, nested CV with per-encoder HP selection, pooled C-index + Kaplan–Meier |
 | 11 | `11_perturbation_tnbc_metadata_only.ipynb` | Counterfactual metadata perturbation (TNBC, BH-FDR adjusted p-values) |
 | 12 | `12_perturbation_lung_metadata_only.ipynb` | Counterfactual metadata perturbation (Lung, BH-FDR adjusted p-values) |
 | 13 | `13_cohort_counterfactual_lung.ipynb` | Cohort-scale per-patient counterfactual (71 Deceased lung patients; patient-level tests, clustering, grade classifier) |
@@ -38,8 +38,30 @@ Compared against H&E-only and MUSK baselines.
 ## 🧪 Linear Probing & MIL (07 / 08 / 09)
 
 Linear probes (07) run over frozen Haiku embeddings. MIL classification
-(08) and MIL survival (09) use sweep-best hyper-parameters with
-early stopping on the validation split.
+(08) and MIL survival (09) compare five frozen spatial-proteomics encoders
+(Haiku(mIF) after the projection head, KRONOS, Eva, VirTues (official),
+VirTues (ours)) on the same held-out acquisitions and marker channels; only the
+attention-based MIL head is trained (manuscript Fig. 3d–l; Methods, "Slice-level
+prediction using multiple-instance learning"):
+
+- repeated nested cross-validation grouped by patient (5 repeats; outer 5-fold
+  for classification, 3-fold for survival), with hyperparameters selected
+  separately for each encoder by an inner 3-fold patient-grouped CV over the
+  same 8-point grid (embedding dim × learning rate × instance ℓ<sub>2</sub>
+  normalization);
+- classification: out-of-fold predictions of all repeats are concatenated and
+  AUROC / AUPRC computed once; the CRC task pools the FOLFIRI + bevacizumab and
+  FOLFOX + bevacizumab cohorts (47 patients) with folds stratified on
+  outcome × regimen;
+- survival: each acquisition's out-of-fold risk is averaged over repeats and
+  one Harrell C-index computed; Kaplan–Meier curves split patients at the median
+  pooled risk (log-rank test);
+- 95% CIs are patient-clustered bootstrap percentile intervals and P values
+  two-sided paired patient-clustered bootstrap tests against Haiku (B = 2,000).
+
+Set `RUN_TRAINING = True` in the config cell to rerun the nested CV; otherwise
+the notebooks recompute all statistics and plots from the saved out-of-fold
+predictions in `downstream/mil_outputs/`.
 
 ## 🧬 Counterfactual Perturbation (11 / 12)
 
